@@ -36,8 +36,7 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      router.push(redirectPath);
-      router.refresh();
+      window.location.href = redirectPath;
     } catch (err: any) {
       setError(err.message);
     } finally {

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
 
 // Paths that require authentication
 const protectedPaths = ['/', '/dashboard'];
@@ -10,16 +9,14 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value;
   const { pathname } = request.nextUrl;
 
-  // Verify token
-  let isAuthenticated = false;
-  if (token) {
-    const payload = verifyToken(token);
-    isAuthenticated = !!payload;
-  }
+  // Lightweight check: only verify cookie existence.
+  // Full JWT verification happens in API route handlers (Node.js runtime),
+  // since jsonwebtoken is not compatible with the Edge Runtime.
+  const hasToken = !!token;
 
   // Protect main app routes
   if (protectedPaths.some(path => pathname === path || pathname.startsWith('/dashboard'))) {
-    if (!isAuthenticated) {
+    if (!hasToken) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
@@ -28,7 +25,7 @@ export function middleware(request: NextRequest) {
 
   // Redirect to dashboard if already logged in and trying to access auth pages
   if (authPaths.some(path => pathname === path)) {
-    if (isAuthenticated) {
+    if (hasToken) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }

@@ -1,11 +1,12 @@
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-  apiKey: process.env.MY_GROQ_KEY,
-});
 
 export async function POST(req: Request) {
   try {
+    const groq = new Groq({
+      apiKey: process.env.MY_GROQ_KEY,
+    });
+
     const { code } = await req.json();
 
     if (!code) {
