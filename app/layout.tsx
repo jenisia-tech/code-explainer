@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -14,6 +15,18 @@ export const metadata: Metadata = {
   description: "Explain your code like a pro",
 };
 
+// Loading component for Suspense fallback
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gray-950 text-green-400 flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block w-8 h-8 border-4 border-green-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-green-600 terminal-cursor">Loading system...</p>
+      </div>
+    </div>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,7 +35,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={jetbrainsMono.variable}>
       <body className="font-mono antialiased">
-        {children}
+        <Suspense fallback={<LoadingFallback />}>
+          {children}
+        </Suspense>
       </body>
     </html>
   );
