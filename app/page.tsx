@@ -5,60 +5,267 @@ import { useState } from "react";
 export default function Home() {
   const [code, setCode] = useState("");
   const [explanation, setExplanation] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [language, setLanguage] = useState("auto");
+  const [detailLevel, setDetailLevel] = useState("detailed");
 
-  async function explainCode() {
-    setLoading(true);
+  const handleExplainCode = async () => {
+    if (!code.trim()) return;
+
+    setIsLoading(true);
     setExplanation("");
 
-    const res = await fetch("/api/explain", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ code }),
-    });
+    try {
+      // Simulated API call - replace with your actual API endpoint
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // Example response - replace with actual API integration
+      const mockExplanation = `$ ${language !== 'auto' ? language : 'detected'} code analysis
+    
+> Function: calculateSum
+> Purpose: Performs arithmetic addition of two numbers
+> Parameters: 
+  - a (number): First operand
+  - b (number): Second operand
+> Returns: number - The sum of a and b
+> Complexity: O(1)
 
-    const data = await res.json();
+$ detailed breakdown
+    
+1. Function Declaration:
+   The function is declared using arrow syntax, accepting two parameters.
 
-    if (data.explanation) {
-      setExplanation(data.explanation);
-    } else {
-      setExplanation(data.error || "Something went wrong.");
+2. Type Coercion:
+   JavaScript automatically handles type coercion for the '+' operator.
+
+3. Return Statement:
+   Returns the computed sum immediately without side effects.
+
+$ suggestions
+    
+• Consider adding input validation
+• Add TypeScript types for better safety
+• Document edge cases (overflow, NaN)
+
+$ output
+> Execution completed successfully
+> Exit code: 0`;
+
+      setExplanation(mockExplanation);
+    } catch (error) {
+      setExplanation("$ error: Failed to analyze code. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    setLoading(false);
-  }
+  const handleClear = () => {
+    setCode("");
+    setExplanation("");
+  };
+
+  const handleSampleCode = () => {
+    const samples: Record<string, string> = {
+      javascript: `function calculateSum(a, b) {
+  return a + b;
+}
+
+const result = calculateSum(5, 3);
+console.log(result); // Output: 8`,
+      python: `def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# Generate first 10 Fibonacci numbers
+for i in range(10):
+    print(f"F({i}) = {fibonacci(i)}")`,
+      typescript: `interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+function getUser(id: number): Promise<User> {
+  return fetch(\`/api/users/\${id}\`)
+    .then(response => response.json());
+}`,
+    };
+    
+    setCode(samples[language] || samples.javascript);
+  };
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-4">AI Code Explainer</h1>
-        <p className="text-gray-300 mb-6">
-          Paste your code below and click Explain.
-        </p>
+    <div className="min-h-screen bg-gray-950 text-green-400 p-4 md:p-8">
+      {/* Terminal Header */}
+      <div className="max-w-7xl mx-auto">
+        <div className="terminal-card mb-6">
+          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-green-800/30">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+            </div>
+            <span className="text-xs text-green-600 ml-2">
+              guest@code-explainer:~$
+            </span>
+          </div>
 
-        <textarea
-          className="w-full h-64 p-4 rounded-lg bg-gray-900 border border-gray-700 text-white"
-          placeholder="Paste your code here..."
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-        />
+          <h1 className="text-2xl md:text-3xl font-bold mb-2 text-green-300 terminal-prompt">
+            Code Explainer
+          </h1>
+          <p className="text-green-600 text-sm mb-1">
+            [INFO] Paste your code below for instant analysis and explanation
+          </p>
+        </div>
 
-        <button
-          onClick={explainCode}
-          disabled={loading || !code}
-          className="mt-4 px-6 py-3 bg-blue-600 rounded-lg font-semibold disabled:bg-gray-600"
-        >
-          {loading ? "Explaining..." : "Explain Code"}
-        </button>
+        {/* Controls */}
+        <div className="terminal-card mb-6">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-xs text-green-600 mb-1.5">
+                $ language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="terminal-input w-full"
+              >
+                <option value="auto">auto-detect</option>
+                <option value="javascript">javascript.js</option>
+                <option value="python">python.py</option>
+                <option value="typescript">typescript.ts</option>
+                <option value="java">java.java</option>
+                <option value="cpp">c++.cpp</option>
+                <option value="rust">rust.rs</option>
+                <option value="go">go.go</option>
+              </select>
+            </div>
 
-        {explanation && (
-          <div className="mt-6 p-4 bg-gray-900 border border-gray-700 rounded-lg whitespace-pre-wrap">
-            {explanation}
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-xs text-green-600 mb-1.5">
+                $ detail-level
+              </label>
+              <select
+                value={detailLevel}
+                onChange={(e) => setDetailLevel(e.target.value)}
+                className="terminal-input w-full"
+              >
+                <option value="brief">--brief</option>
+                <option value="detailed">--detailed</option>
+                <option value="comprehensive">--comprehensive</option>
+              </select>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleSampleCode}
+                className="terminal-button text-xs"
+                title="Load sample code"
+              >
+                $ load-sample
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Code Input */}
+        <div className="terminal-card mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm text-green-500 font-semibold">
+              ~/input/code.{language === "auto" ? "txt" : language.split(".").pop()}
+            </label>
+            <span className="text-xs text-green-700">
+              {code.length} bytes
+            </span>
+          </div>
+          <textarea
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder={`// Enter your code here...\n// Example:\n\nfunction hello() {\n  console.log("Hello, World!");\n}`}
+            className="terminal-textarea w-full min-h-[250px] md:min-h-[300px]"
+            spellCheck={false}
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          <button
+            onClick={handleExplainCode}
+            disabled={!code.trim() || isLoading}
+            className="terminal-button flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <span className="inline-block w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full animate-spin"></span>
+                <span>$ analyzing...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-green-500">❯</span>
+                <span>$ explain-code</span>
+              </>
+            )}
+          </button>
+          <button
+            onClick={handleClear}
+            disabled={!code && !explanation}
+            className="terminal-button disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="text-green-500">❯</span> $ clear
+          </button>
+        </div>
+
+        {/* Output Terminal */}
+        {(explanation || isLoading) && (
+          <div className="terminal-card">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-green-800/30">
+              <h2 className="text-sm font-semibold text-green-500">
+                ~/output/explanation.log
+              </h2>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span className="text-xs text-green-600">
+                  {isLoading ? "running..." : "completed"}
+                </span>
+              </div>
+            </div>
+            
+            {isLoading ? (
+              <div className="space-y-3">
+                <div className="animate-pulse space-y-2">
+                  <div className="h-4 bg-green-900/20 rounded w-3/4"></div>
+                  <div className="h-4 bg-green-900/20 rounded w-1/2"></div>
+                  <div className="h-4 bg-green-900/20 rounded w-5/6"></div>
+                </div>
+                <p className="text-green-600 text-sm terminal-cursor">
+                  Processing code analysis
+                </p>
+              </div>
+            ) : (
+              <div className="terminal-output terminal-scrollbar max-h-[500px] overflow-y-auto">
+                <pre className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {explanation}
+                </pre>
+              </div>
+            )}
           </div>
         )}
+
+        {/* Status Bar */}
+        <div className="mt-8 pt-4 border-t border-green-800/30">
+          <div className="flex flex-wrap justify-between text-xs text-green-700">
+            <div className="flex gap-4">
+              <span>[STATUS] Ready</span>
+              <span>[MODE] {detailLevel}</span>
+            </div>
+            <div className="flex gap-4">
+              <span>guest@code-explainer</span>
+              
+            </div>
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
