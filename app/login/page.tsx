@@ -15,10 +15,12 @@ export default function LoginPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [info, setInfo] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setInfo('');
     setIsLoading(true);
 
     try {
@@ -36,7 +38,8 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      window.location.href = redirectPath;
+      setInfo('Login successful — redirecting...');
+      setTimeout(() => { window.location.href = redirectPath; }, 700);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -83,11 +86,24 @@ export default function LoginPage() {
               </div>
             )}
 
+            {info && (
+              <div className="bg-green-950/40 border border-green-800/40 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 text-sm mt-0.5">❯</span>
+                  <div>
+                    <p className="text-green-300 text-sm font-semibold">$ INFO</p>
+                    <p className="text-green-200 text-sm mt-1">{info}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div>
               <label htmlFor="email" className="block text-xs text-green-600 mb-1.5">
                 $ email
               </label>
               <input
+                autoFocus
                 type="email"
                 id="email"
                 value={formData.email}

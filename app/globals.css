@@ -3,13 +3,73 @@
 :root {
   --background: #030712;
   --foreground: #22c55e;
+  --muted: #0b1220;
+  --card: rgba(6, 10, 14, 0.6);
+  --glass-border: rgba(34,197,94,0.06);
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #030712;
-  color: #22c55e;
-  font-family: monospace;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+}
+
+/* Terminal UI utility classes */
+.terminal-card {
+  background: linear-gradient(180deg, rgba(6,8,10,0.6), rgba(6,8,10,0.45));
+  border: 1px solid var(--glass-border);
+  padding: 1rem;
+  border-radius: 0.6rem;
+  box-shadow: 0 4px 18px rgba(2,6,8,0.6);
+}
+
+.terminal-prompt { color: #9beeb0; }
+.terminal-cursor { opacity: 0.9; }
+
+.terminal-input,
+.terminal-textarea {
+  background: transparent;
+  border: 1px solid rgba(34,197,94,0.08);
+  color: var(--foreground);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  outline: none;
+}
+
+.terminal-input:focus,
+.terminal-textarea:focus { box-shadow: 0 0 0 3px rgba(34,197,94,0.06); }
+
+.terminal-textarea { min-height: 200px; resize: vertical; }
+
+.terminal-button {
+  background: linear-gradient(180deg, rgba(34,197,94,0.06), rgba(34,197,94,0.03));
+  border: 1px solid rgba(34,197,94,0.06);
+  color: var(--foreground);
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.45rem;
+  font-weight: 600;
+}
+
+.terminal-button:hover { transform: translateY(-1px); }
+.terminal-button:active { transform: translateY(0); }
+
+.terminal-output {
+  background: linear-gradient(180deg, rgba(2,6,23,0.25), rgba(2,6,23,0.12));
+  border-radius: 0.45rem;
+  padding: 0.75rem;
+}
+
+.terminal-scrollbar::-webkit-scrollbar { width: 10px; height: 10px; }
+.terminal-scrollbar::-webkit-scrollbar-thumb { background: rgba(34,197,94,0.08); border-radius: 8px; }
+.terminal-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(34,197,94,0.08) transparent; }
+
+/* Small variant for icon buttons */
+.terminal-button-sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+
+/* Responsive tweaks */
+@media (min-width: 768px) {
+  .terminal-textarea { min-height: 300px; }
 }

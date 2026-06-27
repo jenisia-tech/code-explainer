@@ -12,6 +12,7 @@ export default function Home() {
   const [detailLevel, setDetailLevel] = useState("detailed");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   // Check authentication on mount
   useEffect(() => {
@@ -126,6 +127,18 @@ function getUser(id: number): Promise<User> {
       router.refresh();
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  };
+
+  const handleCopyExplanation = async () => {
+    if (!explanation) return;
+    try {
+      await navigator.clipboard.writeText(explanation);
+      setCopyStatus('copied');
+      setTimeout(() => setCopyStatus('idle'), 1800);
+    } catch (err) {
+      setCopyStatus('failed');
+      setTimeout(() => setCopyStatus('idle'), 1800);
     }
   };
 
@@ -283,11 +296,20 @@ function getUser(id: number): Promise<User> {
                 ~/output/explanation.log
               </h2>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span className="text-xs text-green-600">
-                  {isLoading ? "running..." : "completed"}
-                </span>
-              </div>
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  <span className="text-xs text-green-600">
+                    {isLoading ? "running..." : "completed"}
+                  </span>
+                  {!isLoading && explanation && (
+                    <button
+                      onClick={handleCopyExplanation}
+                      className="terminal-button terminal-button-sm ml-2"
+                      aria-label="Copy explanation"
+                    >
+                      {copyStatus === 'copied' ? 'copied' : 'copy'}
+                    </button>
+                  )}
+                </div>
             </div>
             
             {isLoading ? (

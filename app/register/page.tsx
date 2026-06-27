@@ -15,6 +15,7 @@ export default function RegisterPage() {
   });
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [info, setInfo] = useState('');
 
   const validateForm = (): boolean => {
     const newErrors: string[] = [];
@@ -47,6 +48,7 @@ export default function RegisterPage() {
     }
 
     setIsLoading(true);
+    setInfo('');
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -73,7 +75,8 @@ export default function RegisterPage() {
       }
 
       // Redirect to login page on success
-      router.push('/login?registered=true');
+      setInfo('Account created — redirecting to login...');
+      setTimeout(() => router.push('/login?registered=true'), 900);
     } catch (err: any) {
       console.error('Registration error:', err);
     } finally {
@@ -122,6 +125,18 @@ export default function RegisterPage() {
                         </li>
                       ))}
                     </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {info && (
+              <div className="bg-green-950/40 border border-green-800/40 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <span className="text-green-400 text-sm mt-0.5">❯</span>
+                  <div>
+                    <p className="text-green-300 text-sm font-semibold">$ INFO</p>
+                    <p className="text-green-200 text-sm mt-1">{info}</p>
                   </div>
                 </div>
               </div>
