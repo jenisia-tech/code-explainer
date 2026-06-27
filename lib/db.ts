@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI || '';
 const LOCAL_FALLBACK = 'mongodb://127.0.0.1:27017/code-explainer';
 
-let mongoMemoryServer: any = null;
+let mongoMemoryServer: import('mongodb-memory-server').MongoMemoryServer | null = null;
 
 if (!MONGODB_URI) {
   console.warn(

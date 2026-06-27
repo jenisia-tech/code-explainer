@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 
+interface RegisterBody {
+  username: string;
+  email: string;
+  password: string;
+}
+
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
 
-    const body = await request.json();
+    const body = (await request.json()) as RegisterBody;
     const { username, email, password } = body;
 
     // Validation

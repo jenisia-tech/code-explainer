@@ -18,7 +18,11 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchUser();
+    const loadUser = async () => {
+      await fetchUser();
+    };
+
+    loadUser();
   }, []);
 
   const fetchUser = async () => {

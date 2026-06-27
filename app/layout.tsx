@@ -34,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={jetbrainsMono.variable}>
-      <body className="font-mono antialiased">
+      <body className="font-mono antialiased pixel-game-bg">
         <Suspense fallback={<LoadingFallback />}>
           {children}
         </Suspense>
