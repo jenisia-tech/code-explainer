@@ -164,15 +164,11 @@ function getUser(id: number): Promise<User> {
       <div className="max-w-7xl mx-auto">
         {/* Terminal Header */}
         <div className="terminal-card mb-6">
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-green-800/30">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-              <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-            </div>
-            <span className="text-xs text-green-600 ml-2">
-              user@code-explainer:~$
-            </span>
+          <div className="terminal-window-header">
+            <span className="circle red" />
+            <span className="circle yellow" />
+            <span className="circle green" />
+            <span className="text-xs text-green-600 ml-2">user@code-explainer:~$</span>
             <div className="ml-auto">
               <button
                 onClick={handleLogout}

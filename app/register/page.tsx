@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -16,6 +16,12 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [info, setInfo] = useState('');
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReady(true), 900);
+    return () => clearTimeout(timer);
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: string[] = [];
@@ -84,17 +90,26 @@ export default function RegisterPage() {
     }
   };
 
+  if (!isReady) {
+    return (
+      <div className="loading-screen">
+        <div className="text-center space-y-4">
+          <div className="loader mx-auto" />
+          <p className="text-sm text-green-300">Loading auth system...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 text-green-400 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Terminal Header */}
-        <div className="terminal-card">
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-green-800/30">
-            <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-              <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-            </div>
+        <div className="terminal-card terminal-window">
+          <div className="terminal-window-header">
+            <span className="circle red" />
+            <span className="circle yellow" />
+            <span className="circle green" />
             <span className="text-xs text-green-600 ml-2">
               guest@code-explainer:~$ useradd
             </span>
