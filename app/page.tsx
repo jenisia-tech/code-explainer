@@ -21,14 +21,15 @@ export default function Home() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me');
+      const response = await fetch('/api/auth/me', { cache: 'no-store', credentials: 'include' });
       if (response.ok) {
         setIsAuthenticated(true);
       } else {
-        router.push('/login');
+        const redirectPath = window.location.pathname === '/login' ? '/' : window.location.pathname;
+        router.replace(`/login?redirect=${encodeURIComponent(redirectPath)}`);
       }
     } catch (error) {
-      router.push('/login');
+      router.replace('/login');
     } finally {
       setIsAuthLoading(false);
     }
@@ -122,7 +123,7 @@ function getUser(id: number): Promise<User> {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       router.push('/login');
       router.refresh();
     } catch (error) {

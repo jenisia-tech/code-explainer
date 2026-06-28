@@ -2,13 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { generateToken, setTokenCookie } from '@/lib/auth';
+import {
+  findFallbackUserByEmail,
+  verifyFallbackPassword,
+} from '@/lib/fallback-auth';
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect();
+    const rawBody = await request.text();
+    let body: { email?: string; password?: string } = {};
 
-    const body = await request.json();
-    const { email, password } = body;
+    if (rawBody) {
+      try {
+        body = JSON.parse(rawBody) as { email?: string; password?: string };
+      } catch {
+        const params = new URLSearchParams(rawBody);
+        body = {
+          email: params.get('email') ?? undefined,
+          password: params.get('password') ?? undefined,
+        };
+      }
+    }
+
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
 
     // Validation
     if (!email || !password) {
@@ -18,8 +35,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user and include password field
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    let user: any = null;
+
+    try {
+      await dbConnect();
+      user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    } catch (dbError) {
+      console.warn('MongoDB unavailable, using fallback auth store.', dbError);
+      user = await findFallbackUserByEmail(email);
+    }
 
     if (!user) {
       return NextResponse.json(
@@ -28,8 +52,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check password
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = user.comparePassword
+      ? await user.comparePassword(password)
+      : await verifyFallbackPassword(user, password);
 
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -38,19 +63,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate JWT token
     const token = generateToken({
-      userId: user._id.toString(),
+      userId: user._id ? user._id.toString() : user.id,
       email: user.email,
       username: user.username,
     });
 
-    // Create response with user data
     const response = NextResponse.json(
       {
         message: 'Login successful',
         user: {
-          id: user._id,
+          id: user._id ? user._id.toString() : user.id,
           username: user.username,
           email: user.email,
         },
@@ -58,7 +81,6 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    // Set HTTP-only cookie
     setTokenCookie(response, token);
 
     return response;

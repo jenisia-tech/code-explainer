@@ -32,6 +32,7 @@ export default function LoginPage() {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -45,7 +46,10 @@ export default function LoginPage() {
       }
 
       setInfo('Login successful — redirecting...');
-      setTimeout(() => { window.location.href = redirectPath; }, 700);
+      setTimeout(() => {
+        const target = redirectPath && redirectPath !== '/login' ? redirectPath : '/';
+        window.location.assign(target);
+      }, 700);
     } catch (err: any) {
       setError(err.message);
     } finally {

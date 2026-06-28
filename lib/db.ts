@@ -34,6 +34,10 @@ async function dbConnect(): Promise<typeof mongoose> {
       bufferCommands: false,
     };
 
+    if (!MONGODB_URI) {
+      throw new Error("MongoDB connection string is not configured.");
+    }
+
     cached!.promise = mongoose.connect(MONGODB_URI, opts);
   }
 

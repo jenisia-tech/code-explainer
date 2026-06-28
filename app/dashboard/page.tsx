@@ -27,11 +27,11 @@ export default function DashboardPage() {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch('/api/auth/me');
+      const response = await fetch('/api/auth/me', { credentials: 'include', cache: 'no-store' });
       
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          router.replace('/login?redirect=/dashboard');
           return;
         }
         throw new Error('Failed to fetch user data');
@@ -48,8 +48,8 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      router.replace('/login');
       router.refresh();
     } catch (error) {
       console.error('Logout failed:', error);

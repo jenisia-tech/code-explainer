@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
+import { createFallbackUser } from '@/lib/fallback-auth';
 
 interface RegisterBody {
   username: string;
@@ -10,9 +11,22 @@ interface RegisterBody {
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect();
+    const rawBody = await request.text();
+    let body: RegisterBody = { username: '', email: '', password: '' };
 
-    const body = (await request.json()) as RegisterBody;
+    if (rawBody) {
+      try {
+        body = JSON.parse(rawBody) as RegisterBody;
+      } catch {
+        const params = new URLSearchParams(rawBody);
+        body = {
+          username: params.get('username') ?? '',
+          email: params.get('email') ?? '',
+          password: params.get('password') ?? '',
+        };
+      }
+    }
+
     const { username, email, password } = body;
 
     // Validation
@@ -37,31 +51,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({
-      $or: [{ email: email.toLowerCase() }, { username: username.trim() }],
-    });
+    let user: any = null;
 
-    if (existingUser) {
-      const field = existingUser.email === email.toLowerCase() ? 'email' : 'username';
-      return NextResponse.json(
-        { error: `User with this ${field} already exists` },
-        { status: 409 }
-      );
+    try {
+      await dbConnect();
+
+      const existingUser = await User.findOne({
+        $or: [{ email: email.toLowerCase() }, { username: username.trim() }],
+      });
+
+      if (existingUser) {
+        const field = existingUser.email === email.toLowerCase() ? 'email' : 'username';
+        return NextResponse.json(
+          { error: `User with this ${field} already exists` },
+          { status: 409 }
+        );
+      }
+
+      user = await User.create({
+        username: username.trim(),
+        email: email.toLowerCase(),
+        password,
+      });
+    } catch (dbError) {
+      console.warn('MongoDB unavailable, using fallback auth store.', dbError);
+      user = await createFallbackUser({
+        username,
+        email,
+        password,
+      });
+
+      if (!user) {
+        return NextResponse.json(
+          { error: 'User with this email already exists' },
+          { status: 409 }
+        );
+      }
     }
-
-    // Create new user
-    const user = await User.create({
-      username: username.trim(),
-      email: email.toLowerCase(),
-      password,
-    });
 
     return NextResponse.json(
       {
         message: 'User registered successfully',
         user: {
-          id: user._id,
+          id: user._id ? user._id.toString() : user.id,
           username: user.username,
           email: user.email,
         },
@@ -70,8 +102,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error('Registration error:', error);
-    
-    // Handle mongoose validation errors
+
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map((err: any) => err.message);
       return NextResponse.json(
@@ -80,7 +111,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Handle duplicate key errors
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
       return NextResponse.json(
