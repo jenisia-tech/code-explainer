@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import CodeEditor from '@/components/CodeEditor';
@@ -9,7 +9,7 @@ import { PRACTICE_PROBLEMS, PracticeProblem, TestCase } from '@/lib/data/practic
 type DifficultyFilter = 'all' | 'easy' | 'medium' | 'hard';
 type LanguageType = 'python' | 'javascript' | 'c' | 'java';
 
-export default function PracticePage() {
+function PracticeContent() {
   const searchParams = useSearchParams();
   const problemParam = searchParams.get('problem');
 
@@ -396,5 +396,13 @@ export default function PracticePage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function PracticePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-sky-400 p-8 flex items-center justify-center font-mono">Loading Practice Lab...</div>}>
+      <PracticeContent />
+    </Suspense>
   );
 }

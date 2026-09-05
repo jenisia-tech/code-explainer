@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import CodeEditor from '@/components/CodeEditor';
@@ -39,7 +39,7 @@ int main() {
 }`
 };
 
-export default function WorkspacePage() {
+function WorkspaceContent() {
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get('tab') as TabType) || 'explain';
 
@@ -744,5 +744,13 @@ export default function WorkspacePage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function WorkspacePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-sky-400 p-8 flex items-center justify-center font-mono">Loading Workspace...</div>}>
+      <WorkspaceContent />
+    </Suspense>
   );
 }

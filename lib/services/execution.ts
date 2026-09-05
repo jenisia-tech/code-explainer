@@ -8,31 +8,32 @@ export interface ExecutionResult {
 
 export async function executeCode(
   code: string,
-  language: 'python' | 'javascript' | 'c' | 'java',
+  language: string = 'javascript',
   stdin: string = ''
 ): Promise<ExecutionResult> {
   const startTime = Date.now();
+  const lang = (language || 'javascript').toLowerCase();
 
   try {
-    if (language === 'javascript') {
+    if (lang === 'javascript' || lang === 'js') {
       return runJavaScriptInSandbox(code);
     }
 
-    if (language === 'python') {
+    if (lang === 'python' || lang === 'py') {
       return runPythonSimulation(code);
     }
 
-    if (language === 'c') {
+    if (lang === 'c' || lang === 'cpp') {
       return runCSimulation(code);
     }
 
-    if (language === 'java') {
+    if (lang === 'java') {
       return runJavaSimulation(code);
     }
 
     return {
       success: true,
-      output: `[${language.toUpperCase()}] Execution complete.\nOutput:\n${code.slice(0, 100)}`,
+      output: `[${lang.toUpperCase()}] Execution complete.\nOutput:\n${code.slice(0, 100)}`,
       executionTimeMs: Date.now() - startTime,
       exitCode: 0,
     };
