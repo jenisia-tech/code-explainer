@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const protectedPaths = ['/', '/dashboard'];
+const protectedPaths = [
+  '/',
+  '/dashboard',
+  '/workspace',
+  '/visualizer',
+  '/learn',
+  '/practice',
+  '/quiz',
+  '/tutor',
+  '/progress',
+  '/settings',
+];
 const authPaths = ['/login', '/register'];
 
 export function proxy(request: NextRequest) {
@@ -8,7 +19,11 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasToken = !!token;
 
-  if (protectedPaths.some((path) => pathname === path || pathname.startsWith('/dashboard'))) {
+  if (
+    protectedPaths.some(
+      (path) => pathname === path || pathname.startsWith(`${path}/`)
+    )
+  ) {
     if (!hasToken) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
@@ -26,5 +41,18 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/login', '/register', '/dashboard/:path*'],
+  matcher: [
+    '/',
+    '/login',
+    '/register',
+    '/dashboard/:path*',
+    '/workspace/:path*',
+    '/visualizer/:path*',
+    '/learn/:path*',
+    '/practice/:path*',
+    '/quiz/:path*',
+    '/tutor/:path*',
+    '/progress/:path*',
+    '/settings/:path*',
+  ],
 };

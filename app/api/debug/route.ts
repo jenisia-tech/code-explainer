@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { explainCode } from '@/lib/services/ai';
+import { debugCode } from '@/lib/services/ai';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { code, language = 'python', level = 'beginner', customApiKey } = body;
+    const { code, language = 'python', errorContext, customApiKey } = body;
 
     if (!code || typeof code !== 'string' || !code.trim()) {
-      return NextResponse.json({ error: 'Code snippet is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Code is required to debug' }, { status: 400 });
     }
 
-    const explanation = await explainCode({
+    const debugResult = await debugCode({
       code,
       language,
-      level,
+      errorContext,
       customApiKey,
     });
 
     return NextResponse.json({
       success: true,
-      explanation,
+      debug: debugResult,
     });
   } catch (error: any) {
-    console.error('Explain API error:', error);
+    console.error('Debug API error:', error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to explain code' },
+      { error: error?.message || 'Failed to debug code' },
       { status: 500 }
     );
   }

@@ -12,12 +12,16 @@ const config: Config = {
         mono: ["var(--font-jetbrains-mono)", "JetBrains Mono", "Fira Code", "Ubuntu Mono", "Source Code Pro", "Courier New", "monospace"],
       },
       colors: {
-        // Terminal-inspired color palette
+        // Black & Electric Blue Cyber Palette
         terminal: {
-          bg: "#0a0a0a",
-          green: "#4ade80",
-          dim: "#22c55e",
-          bright: "#86efac",
+          bg: "#020617",
+          dark: "#010409",
+          blue: "#38bdf8",
+          electric: "#0ea5e9",
+          cyan: "#06b6d4",
+          indigo: "#6366f1",
+          dim: "#1e293b",
+          bright: "#e0f2fe",
         },
       },
     },
